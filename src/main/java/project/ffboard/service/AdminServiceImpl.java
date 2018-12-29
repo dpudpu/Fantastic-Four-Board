@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class AdminServiceImpl implements AdminService{
+public class AdminServiceImpl implements AdminService {
     private AdminDao adminDao;
     @Autowired
     @Qualifier(value = "DaoException")
@@ -25,19 +25,19 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public List<Member> getMembers(String pg, String email, int limit) {
         List<Member> result = null;
 
         try {
             result = adminDao.getMembers(Integer.parseInt(pg), email, limit);
             // member_permission에서 권한들을 읽어와서 setPerSet 해주기.
-            for(Member m : result){
+            for (Member m : result) {
                 Set set = new HashSet();
-               for(String perm: adminDao.getMemPerm(m.getId())){
-                   set.add(perm);
-               }
-               m.setPerms(set);
+                for (String perm : adminDao.getMemPerm(m.getId())) {
+                    set.add(perm);
+                }
+                m.setPerms(set);
             }
         } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
@@ -45,29 +45,30 @@ public class AdminServiceImpl implements AdminService{
             return result;
         }
     }
+
     @Override
     @Transactional(readOnly = true)
-    public int memberCount(){
+    public int memberCount() {
         int result = -1;
-        try{
+        try {
             result = adminDao.memberCount();
-        }catch (DataAccessException dae){
+        } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
-        }finally {
+        } finally {
             return result;
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> getPermissions(){
+    public List<String> getPermissions() {
         List<String> result = null;
 
-        try{
-            result=adminDao.getPermissions();
-        }catch (DataAccessException dae){
+        try {
+            result = adminDao.getPermissions();
+        } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
-        }finally {
+        } finally {
             return result;
         }
     }
@@ -75,9 +76,9 @@ public class AdminServiceImpl implements AdminService{
     @Override
     @Transactional
     public void update(String id, String[] perms) {
-        try{
-            adminDao.update(id,perms);
-        }catch (DataAccessException dae){
+        try {
+            adminDao.update(id, perms);
+        } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
         }
     }
@@ -87,7 +88,7 @@ public class AdminServiceImpl implements AdminService{
     public void addCategory(String name) {
         try {
             adminDao.addCategory(name);
-        }catch (DataAccessException dae){
+        } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
         }
     }

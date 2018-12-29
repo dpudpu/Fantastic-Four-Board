@@ -47,7 +47,7 @@ public class MemberServiceImpl implements MemberService {
             member = memberDao.login(member);
             // 맵핑테이블에서 권한 받기
             Set set = new HashSet();
-            for(String perm: adminDao.getMemPerm(member.getId())){
+            for (String perm : adminDao.getMemPerm(member.getId())) {
                 set.add(perm);
             }
             member.setPerms(set);

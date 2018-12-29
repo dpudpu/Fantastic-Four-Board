@@ -79,11 +79,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public int getCount(Long articleId, int totalPage, int posts){
-        try{
+    public int getCount(Long articleId, int totalPage, int posts) {
+        try {
             totalPage = commentDao.getCount(articleId);
             totalPage = (totalPage - 1) / posts + 1;
-        }catch (DataAccessException dae){
+        } catch (DataAccessException dae) {
             daoException.printLog(dae.toString());
         } finally {
             return totalPage;

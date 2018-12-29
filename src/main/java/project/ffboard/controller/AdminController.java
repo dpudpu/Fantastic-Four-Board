@@ -25,8 +25,8 @@ public class AdminController {
                           @RequestParam(value = "email", defaultValue = "") String email,
                           HttpSession session) {
         // 세션으로 관리자가 접근한건지 한번 더 체크 해주기
-        Member member = (Member)session.getAttribute("member");
-        if(member.getId().intValue() != 1)
+        Member member = (Member) session.getAttribute("member");
+        if (member.getId().intValue() != 1)
             return "redirect:/";
 
 
@@ -36,9 +36,9 @@ public class AdminController {
         List<String> permissions = adminService.getPermissions();
         modelMap.addAttribute("permissions", permissions);
         modelMap.addAttribute("permSize", permissions.size());
-        modelMap.addAttribute("email",email);
-        modelMap.addAttribute("pg",pg);
-        modelMap.addAttribute("memberCount",adminService.memberCount()/LIMIT+1);
+        modelMap.addAttribute("email", email);
+        modelMap.addAttribute("pg", pg);
+        modelMap.addAttribute("memberCount", adminService.memberCount() / LIMIT + 1);
         modelMap.addAttribute("members", adminService.getMembers(pg, email, LIMIT));
         return "admin/list";
     }
@@ -46,15 +46,15 @@ public class AdminController {
     @PostMapping("/admin/update")
     public String update(@RequestParam(value = "email", defaultValue = "") String email,
                          @RequestParam(value = "pg", defaultValue = "1") String pg,
-                         @RequestParam(value = "checkPerm",defaultValue = "") String[] perms,
+                         @RequestParam(value = "checkPerm", defaultValue = "") String[] perms,
                          @RequestParam(value = "id") String id) {
 
-        adminService.update(id,perms);
-        return "redirect:/admin/list?email=" + email+"&pg="+pg;
+        adminService.update(id, perms);
+        return "redirect:/admin/list?email=" + email + "&pg=" + pg;
     }
 
     @PostMapping("/admin/addCategory")
-    public String addCategory(@RequestParam(value="name") String name){
+    public String addCategory(@RequestParam(value = "name") String name) {
         adminService.addCategory(name);
         return "redirect:/";
     }

@@ -18,40 +18,40 @@ import javax.servlet.http.HttpSession;
 public class CommentController {
     private CommentService commentService;
 
-    public CommentController(CommentService commentService){
+    public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
 
     @GetMapping("/comment/list")
-    public String getList(ModelMap modelMap, @RequestParam(value="modification", defaultValue = "false") String modification,
-                            @RequestParam(value = "commentId",defaultValue = "") Long commentId,
-                            @RequestParam(value = "articleId", defaultValue = "1")String articleId,
-                            @RequestParam(value = "addChild", defaultValue = "false")String addChild,
-                            @RequestParam(value = "page", defaultValue = "1")String page,
-                            @RequestParam(value = "posts", defaultValue = "5")String posts,
-                            @RequestParam(value = "totalPage", defaultValue = "1")String totalPage){
+    public String getList(ModelMap modelMap, @RequestParam(value = "modification", defaultValue = "false") String modification,
+                          @RequestParam(value = "commentId", defaultValue = "") Long commentId,
+                          @RequestParam(value = "articleId", defaultValue = "1") String articleId,
+                          @RequestParam(value = "addChild", defaultValue = "false") String addChild,
+                          @RequestParam(value = "page", defaultValue = "1") String page,
+                          @RequestParam(value = "posts", defaultValue = "5") String posts,
+                          @RequestParam(value = "totalPage", defaultValue = "1") String totalPage) {
 
         modelMap.addAttribute("comments",
                 commentService.getCommentList(Long.parseLong(articleId), Integer.parseInt(page), Integer.parseInt(posts)));
 
-        if(modification.equals("true")) {
+        if (modification.equals("true")) {
             modelMap.addAttribute("modification", modification);
         }
-        if(addChild.equals("true")) {
+        if (addChild.equals("true")) {
             modelMap.addAttribute("addChild", addChild);
         }
         modelMap.addAttribute("commentId", commentId);
         modelMap.addAttribute("page", page);
         modelMap.addAttribute("posts", posts);
-        modelMap.addAttribute("totalPage", commentService.getCount(Long.parseLong(articleId),Integer.parseInt(totalPage),Integer.parseInt(posts)));
+        modelMap.addAttribute("totalPage", commentService.getCount(Long.parseLong(articleId), Integer.parseInt(totalPage), Integer.parseInt(posts)));
 
         return "comment";
     }
 
     @GetMapping("/comment/write")
-    public String writeChild(@RequestParam("id")Long id,
-                             @RequestParam("articleid")Long articleId){
-        return "redirect:/article/read?id="+articleId+"&commentId="+id+"&addChild=true";
+    public String writeChild(@RequestParam("id") Long id,
+                             @RequestParam("articleid") Long articleId) {
+        return "redirect:/article/read?id=" + articleId + "&commentId=" + id + "&addChild=true";
     }
 
 
@@ -59,38 +59,38 @@ public class CommentController {
     public String write(@ModelAttribute Comment comment,
                         @ModelAttribute CommentCounting commentCounting,
                         HttpSession session, HttpServletRequest request) {
-        if(comment.getGroupId()==null){      // 그냥 댓글
+        if (comment.getGroupId() == null) {      // 그냥 댓글
             comment.setGroupSeq(0);
             comment.setDepthLevel(0);
-        }else{                               // 답글일 때
-            if(comment.getDepthLevel() < 2) comment.setDepthLevel(comment.getDepthLevel()+1);
-            comment.setGroupSeq(comment.getGroupSeq()+1);
+        } else {                               // 답글일 때
+            if (comment.getDepthLevel() < 2) comment.setDepthLevel(comment.getDepthLevel() + 1);
+            comment.setGroupSeq(comment.getGroupSeq() + 1);
         }
 
-        Member member = (Member)session.getAttribute("member");
+        Member member = (Member) session.getAttribute("member");
         comment.setIpAddress(request.getRemoteAddr());
         comment.setMemberId(member.getId());
         comment.setNickName(member.getNickName());
         commentService.addComment(comment, commentCounting);
-        return "redirect:/article/read?id="+comment.getArticleId();
+        return "redirect:/article/read?id=" + comment.getArticleId();
 
     }
 
     @GetMapping("/comment/delete")
-    public String delete(@RequestParam("id") Long id, @RequestParam("articleid")Long articleId){
+    public String delete(@RequestParam("id") Long id, @RequestParam("articleid") Long articleId) {
         commentService.deleteComment(id);
-        return "redirect:/article/read?id="+articleId;
+        return "redirect:/article/read?id=" + articleId;
     }
 
     @PostMapping("/comment/modify")
-        public String modify(@ModelAttribute Comment comment){
-            commentService.modifyComment(comment);
-            return "redirect:/article/read?id="+comment.getArticleId();
+    public String modify(@ModelAttribute Comment comment) {
+        commentService.modifyComment(comment);
+        return "redirect:/article/read?id=" + comment.getArticleId();
     }
 
     @GetMapping("/comment/modifyform")
-    public String modifyForm(@RequestParam("id")Long commentId,
-                             @RequestParam("articleid") Long articleId ){
-        return "redirect:/article/read?id="+articleId+"&modification=true&commentId="+commentId;
+    public String modifyForm(@RequestParam("id") Long commentId,
+                             @RequestParam("articleid") Long articleId) {
+        return "redirect:/article/read?id=" + articleId + "&modification=true&commentId=" + commentId;
     }
 }

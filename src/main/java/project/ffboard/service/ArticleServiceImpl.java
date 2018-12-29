@@ -33,13 +33,13 @@ public class ArticleServiceImpl implements ArticleService {
     public int addArticle(Article article, ArticleContent articleContent, MultipartFile file, ArticleCounting articleCounting) {
         //지금 쓰는 글이 답글인경우 groupSeq를 알맞게 조정
         if (article.getGroupId() != null) {
-            article.setDepthLevel(article.getDepthLevel()+1);
-            article.setGroupSeq(article.getGroupSeq()+1);
+            article.setDepthLevel(article.getDepthLevel() + 1);
+            article.setGroupSeq(article.getGroupSeq() + 1);
             articleDao.arrangeGroupSeq(article.getGroupId(), article.getGroupSeq());
         }
 
         //article의 기본정보 삽입.
-        Long articleId =articleDao.insertArticle(article);
+        Long articleId = articleDao.insertArticle(article);
         articleContent.setArticleId(articleId);
 
         //article이 원글일 경우 GroupId가 null이므로, 삽입해주는 과정.
@@ -53,15 +53,16 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         //article_couning 해당 카테고리에 글이 없을 때 => count 0
-        if(articleDao.getCategoryCount(articleCounting.getCategoryId()) == null){
+        if (articleDao.getCategoryCount(articleCounting.getCategoryId()) == null) {
             articleCounting.setCount(1L);
             articleDao.insertArticleCount(articleCounting);
-        }else {
+        } else {
             articleDao.updateArticleCount(articleCounting);
         }
 
         return articleDao.insertArticleContent(articleContent);
     }
+
     public int uploadFile(MultipartFile file, Long articleId) {
         UUID uuid = UUID.randomUUID();
         String uuidStr = uuid.toString();
@@ -80,26 +81,32 @@ public class ArticleServiceImpl implements ArticleService {
         InputStream in = null;
         OutputStream out = null;
 
-        try{
+        try {
             in = file.getInputStream();
             out = new FileOutputStream(saveFile);
             byte[] buffer = new byte[1024];
             int readCount = 0;
-            while((readCount = in.read(buffer)) != -1) {
+            while ((readCount = in.read(buffer)) != -1) {
                 out.write(buffer, 0, readCount);
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }finally {
-            if(in != null) {
-                try {in.close();} catch (Exception e) {}
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                }
             }
-            if(out != null) {
-                try {out.close();} catch (Exception e) {}
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                }
             }
         }
 
-        Map<String,Object> fileInfo = new HashMap<>();
+        Map<String, Object> fileInfo = new HashMap<>();
         fileInfo.put("article_id", articleId);
         fileInfo.put("origin_name", file.getOriginalFilename());
         fileInfo.put("stored_name", uuidStr);
@@ -110,7 +117,7 @@ public class ArticleServiceImpl implements ArticleService {
         return articleDao.insertFileInfo(fileInfo);
     }
 
-    public ArticleFile isExistFile(Long articleId){
+    public ArticleFile isExistFile(Long articleId) {
         return articleDao.getFileInfo(articleId);
     }
 
@@ -121,43 +128,49 @@ public class ArticleServiceImpl implements ArticleService {
         response.setContentType(articleFile.getContentType());
         response.setContentType("application/x-msdownload");
 
-        try{
+        try {
             URLDecoder.decode(articleFile.getOriginName(), "ISO8859_1");
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        response.setHeader("Content-disposition", "attachment; filename="+ articleFile.getOriginName());
+        response.setHeader("Content-disposition", "attachment; filename=" + articleFile.getOriginName());
 
         InputStream in = null;
         OutputStream out = null;
-        try{
-            in = new FileInputStream(articleFile.getPath()+"/"+articleFile.getStoredName());
+        try {
+            in = new FileInputStream(articleFile.getPath() + "/" + articleFile.getStoredName());
             out = response.getOutputStream();
             byte[] buffer = new byte[1024];
             int readCount = 0;
             while ((readCount = in.read(buffer)) != -1) {
                 out.write(buffer, 0, readCount);
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }finally {
-            if(in != null) {
-                try{ in.close(); } catch (Exception e) {}
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                }
             }
-            if(out != null) {
-                try{ out.close(); } catch (Exception e) {}
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                }
             }
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public int getCount(int categoryId, int totalPage, int posts){
+    public int getCount(int categoryId, int totalPage, int posts) {
         try {
             totalPage = articleDao.getCount(categoryId);
             totalPage = (totalPage - 1) / posts + 1;
             return totalPage;
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             return 0;
         }
 
@@ -213,13 +226,13 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(readOnly = true)
     public List<Article> getArticleList(int categoryId, int start, String searchType, String searchWord) {
-        return articleDao.getArticleList(categoryId, start,limit, searchType,searchWord);
+        return articleDao.getArticleList(categoryId, start, limit, searchType, searchWord);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Article> getArticleList(String orderType, int start) {
-        return articleDao.getArticleList(orderType,start,limit);
+        return articleDao.getArticleList(orderType, start, limit);
     }
 
     @Override

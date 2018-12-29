@@ -21,30 +21,29 @@ public class AdminDao {
     private NamedParameterJdbcTemplate jdbc;
     private SimpleJdbcInsert insertAction;
 
-    public AdminDao(DataSource ds){
+    public AdminDao(DataSource ds) {
         this.jdbc = new NamedParameterJdbcTemplate(ds);
         this.insertAction = new SimpleJdbcInsert(ds).withTableName("memberPermission").usingGeneratedKeyColumns("id");
     }
 
-    public List<Member> getMembers(int pg, String email, int limit) throws DataAccessException{
+    public List<Member> getMembers(int pg, String email, int limit) throws DataAccessException {
         String sql;
         RowMapper<Member> rowMapper = new BeanPropertyRowMapper<>().newInstance(Member.class);
-        Map<String,Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
 
-        if(!email.equals("")) {
+        if (!email.equals("")) {
             sql = "SELECT id, email, nick_name FROM member WHERE email=:email";
             params.put("email", email);
-        }
-        else {
+        } else {
             sql = "SELECT id, email, nick_name FROM member LIMIT :pg,:limit";
-            params.put("pg",pg*limit - limit+1);
-            params.put("limit",limit);
+            params.put("pg", pg * limit - limit + 1);
+            params.put("limit", limit);
         }
         return jdbc.query(sql, params, rowMapper);
     }
 
     // permission 테이블에 어떤 row가 있는지 받아서 관리자 페이지 테이블에 출력용
-    public List<String> getPermissions() throws DataAccessException{
+    public List<String> getPermissions() throws DataAccessException {
         String sql = "SELECT name FROM permission";
         return jdbc.query(sql, new RowMapper<String>() {
             @Override
@@ -57,7 +56,7 @@ public class AdminDao {
     // 각 회원이 가지고 있는 권한을 구해서 MemberDTO의 Set에 넣어준다
     public List<String> getMemPerm(Long id) throws DataAccessException {
         String sql = "SELECT perm_name FROM member_permission WHERE member_id=:id";
-        Map<String, Long> params = Collections.singletonMap("id",id);
+        Map<String, Long> params = Collections.singletonMap("id", id);
         return jdbc.query(sql, params, new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -75,32 +74,32 @@ public class AdminDao {
     public void update(String id, String[] perms) throws DataAccessException {
         String sql = "DELETE from member_permission WHERE member_id=:id";
         Map<String, String> params = new HashMap<>();
-        params.put("id",id);
+        params.put("id", id);
         jdbc.update(sql, params);
 
-        for(String perm : perms){
-            sql="INSERT INTO member_permission(member_id, perm_name) " +
+        for (String perm : perms) {
+            sql = "INSERT INTO member_permission(member_id, perm_name) " +
                     "VALUES (:id, :perm)";
-            params.put("perm",perm);
-            jdbc.update(sql,params);
+            params.put("perm", perm);
+            jdbc.update(sql, params);
             params.remove(perm);
         }
     }
 
-    public int memberCount() throws DataAccessException{
+    public int memberCount() throws DataAccessException {
         String sql = "SELECT COUNT(*) FROM member";
-        Map<String,Object> params = new HashMap<>();
-        return jdbc.queryForObject(sql, params,new RowMapper<Integer>() {
+        Map<String, Object> params = new HashMap<>();
+        return jdbc.queryForObject(sql, params, new RowMapper<Integer>() {
             @Override
             public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
-                return resultSet.getInt(1)-1; // 관리자 계정 빼고 계산
+                return resultSet.getInt(1) - 1; // 관리자 계정 빼고 계산
             }
         });
     }
 
-    public void addCategory(String name)throws DataAccessException{
+    public void addCategory(String name) throws DataAccessException {
         String sql = "INSERT INTO category(name) VALUES(:name)";
-        Map<String,String> params = Collections.singletonMap("name",name);
-        jdbc.update(sql,params);
+        Map<String, String> params = Collections.singletonMap("name", name);
+        jdbc.update(sql, params);
     }
 }

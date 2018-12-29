@@ -31,25 +31,25 @@ public class ArticleController {
     //게시판 글 목록 가져오기
     @GetMapping("/article/list")
     public String list(Model model,
-                       @RequestParam("categoryid")int categoryId,
-                       @RequestParam(value = "page", defaultValue = "1")int page,
-                       @RequestParam(value = "posts", defaultValue = "5")int posts,
-                       @RequestParam(value = "totalPage", defaultValue = "1")int totalPage) {
+                       @RequestParam("categoryid") int categoryId,
+                       @RequestParam(value = "page", defaultValue = "1") int page,
+                       @RequestParam(value = "posts", defaultValue = "5") int posts,
+                       @RequestParam(value = "totalPage", defaultValue = "1") int totalPage) {
         getCategoryList(model); //게시판 네비게이션 목록을 위한 카테고리 목록 가져오기
 
-        model.addAttribute("articleList", articleService.getArticleList(categoryId,page,posts));
+        model.addAttribute("articleList", articleService.getArticleList(categoryId, page, posts));
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("page", page);
         model.addAttribute("posts", posts);
-        model.addAttribute("totalPage", articleService.getCount(categoryId, totalPage, posts) );
+        model.addAttribute("totalPage", articleService.getCount(categoryId, totalPage, posts));
 
         return "/article/list";
     }
 
     //게시판 검색된 글 목록 가져오기
     @PostMapping("/article/search")
-    public String list(@RequestParam("categoryId")int categoryId,
-                       @RequestParam(value = "start", defaultValue = "0")int start,
+    public String list(@RequestParam("categoryId") int categoryId,
+                       @RequestParam(value = "start", defaultValue = "0") int start,
                        @RequestParam("searchType") String searchType,
                        @RequestParam("searchWord") String searchWord,
                        Model model) {
@@ -61,13 +61,13 @@ public class ArticleController {
 
     //게시판 글 읽기
     @GetMapping("/article/read")
-    public String read(Model model, @RequestParam("id")Long id,
-                       @RequestParam(value="modification", defaultValue = "false") String modification,
+    public String read(Model model, @RequestParam("id") Long id,
+                       @RequestParam(value = "modification", defaultValue = "false") String modification,
                        @RequestParam(value = "commentId", defaultValue = "") Long commentId,
-                       @RequestParam(value="addChild", defaultValue = "false")String addChild,
-                       @RequestParam(value = "page", defaultValue = "1")String page,
-                       @RequestParam(value = "posts", defaultValue = "5")String posts,
-                       @RequestParam(value = "totalPage", defaultValue = "1")String totalPage){
+                       @RequestParam(value = "addChild", defaultValue = "false") String addChild,
+                       @RequestParam(value = "page", defaultValue = "1") String page,
+                       @RequestParam(value = "posts", defaultValue = "5") String posts,
+                       @RequestParam(value = "totalPage", defaultValue = "1") String totalPage) {
         getCategoryList(model); //게시판 네비게이션 목록을 위한 카테고리 목록 가져오기
 
         Article article = articleService.getArticle(id);
@@ -97,7 +97,7 @@ public class ArticleController {
         model.addAttribute("commentId", commentId);
         model.addAttribute("page", page);
         model.addAttribute("posts", posts);
-        model.addAttribute("totalPage", commentService.getCount(id,Integer.parseInt(totalPage),Integer.parseInt(posts)));
+        model.addAttribute("totalPage", commentService.getCount(id, Integer.parseInt(totalPage), Integer.parseInt(posts)));
         //댓글 삽입 끝
 
         return "/article/read";
@@ -117,10 +117,10 @@ public class ArticleController {
                         HttpSession session) {
         getCategoryList(model); //게시판 네비게이션 목록을 위한 카테고리 목록 가져오기
         model.addAttribute("categoryId", categoryId);
-        Member member = (Member)session.getAttribute("member");
+        Member member = (Member) session.getAttribute("member");
 
         //권한 없는 사람이 직접 입력한 url로 접근할 경우
-        if(!member.getPerms().contains("write")){
+        if (!member.getPerms().contains("write")) {
             return "redirect:/";
         }
         return "/article/write";
@@ -137,10 +137,10 @@ public class ArticleController {
         article.setIpAddress(request.getRemoteAddr());
         articleCounting.setCategoryId(article.getCategoryId());
 
-        Member member = (Member)session.getAttribute("member");
+        Member member = (Member) session.getAttribute("member");
         article.setMemberId(member.getId());
         article.setNickName(member.getNickName());
-        articleService.addArticle(article,articleContent,file, articleCounting);
+        articleService.addArticle(article, articleContent, file, articleCounting);
 
         return "redirect:/article/list?categoryid=" + article.getCategoryId();
     }
@@ -167,12 +167,12 @@ public class ArticleController {
         article.setCategoryId(parentArticle.getCategoryId());
         article.setIpAddress(request.getRemoteAddr());
 
-        Member member = (Member)session.getAttribute("member");
+        Member member = (Member) session.getAttribute("member");
         article.setMemberId(member.getId());
         article.setNickName(member.getNickName());
         articleCounting.setCategoryId(article.getCategoryId());
-        articleService.addArticle(article,articleContent,file, articleCounting);
-        return "redirect:/article/list?categoryid="+article.getCategoryId();
+        articleService.addArticle(article, articleContent, file, articleCounting);
+        return "redirect:/article/list?categoryid=" + article.getCategoryId();
 
     }
 
@@ -191,7 +191,7 @@ public class ArticleController {
                          HttpServletRequest request, HttpSession session) {
         article.setIpAddress(request.getRemoteAddr());
 
-        Member member = (Member)session.getAttribute("member");
+        Member member = (Member) session.getAttribute("member");
         article.setNickName(member.getNickName());
         articleService.updateArticle(article, articleContent, file);
 

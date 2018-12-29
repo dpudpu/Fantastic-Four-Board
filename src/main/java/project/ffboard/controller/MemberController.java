@@ -23,12 +23,12 @@ public class MemberController {
 
 
     @GetMapping("/member/signup")
-    public String signUpForm(ModelMap modelMap,@RequestParam(value = "email", defaultValue = "") String email,
-                             @RequestParam(value = "nickName", defaultValue = "")String nickName,
+    public String signUpForm(ModelMap modelMap, @RequestParam(value = "email", defaultValue = "") String email,
+                             @RequestParam(value = "nickName", defaultValue = "") String nickName,
                              @RequestParam(value = "duplication", defaultValue = "") String duplication) {
-        modelMap.addAttribute("email",email);
-        modelMap.addAttribute("nickName",nickName);
-        modelMap.addAttribute("duplication",duplication);
+        modelMap.addAttribute("email", email);
+        modelMap.addAttribute("nickName", nickName);
+        modelMap.addAttribute("duplication", duplication);
 
         return "signup";
     }
@@ -38,20 +38,20 @@ public class MemberController {
         Long result = memberService.signUp(member);
         // -1L은 이메일중복
         // -2L은 닉네임중복
-        if(result==-1L){
-            return "redirect:/member/signup?duplication=email&nickName="+member.getNickName()+"&email="+member.getEmail();
-        }else if(result==-2L){
-            return "redirect:/member/signup?duplication=nickName&nickName="+member.getNickName()+"&email="+member.getEmail();
-        }else { // 로그인 성공
+        if (result == -1L) {
+            return "redirect:/member/signup?duplication=email&nickName=" + member.getNickName() + "&email=" + member.getEmail();
+        } else if (result == -2L) {
+            return "redirect:/member/signup?duplication=nickName&nickName=" + member.getNickName() + "&email=" + member.getEmail();
+        } else { // 로그인 성공
             return "redirect:/";
         }
     }
 
     @GetMapping("/login")
     public String loginForm(ModelMap modelMap, @ModelAttribute Member member,
-                            @RequestParam(value="loginCheck", defaultValue="") String loginCheck,
-                            HttpSession session){
-        if(session.getAttribute("member")!=null){
+                            @RequestParam(value = "loginCheck", defaultValue = "") String loginCheck,
+                            HttpSession session) {
+        if (session.getAttribute("member") != null) {
             return "redirect:/";
         }
         modelMap.addAttribute("email", member.getEmail());
@@ -62,23 +62,21 @@ public class MemberController {
 
     @PostMapping("/login")
     public String login(@ModelAttribute Member member, Model model,
-                        HttpSession session){
+                        HttpSession session) {
         Member memberResult = memberService.login(member);
-        if(memberResult == null){
-            return "redirect:/login?loginCheck=invalid&email="+member.getEmail();
-        }
-        else{
-            session.setAttribute("member",memberResult);
+        if (memberResult == null) {
+            return "redirect:/login?loginCheck=invalid&email=" + member.getEmail();
+        } else {
+            session.setAttribute("member", memberResult);
             return "redirect:/";
         }
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session){
+    public String logout(HttpSession session) {
         session.removeAttribute("member");
         return "redirect:/";
     }
-
 
 
 }

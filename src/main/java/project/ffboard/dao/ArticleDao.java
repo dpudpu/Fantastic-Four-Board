@@ -35,13 +35,13 @@ public class ArticleDao {
         this.jdbc = new NamedParameterJdbcTemplate(dataSource);
         this.originJdbc = new JdbcTemplate(dataSource);
         this.insertActionArticle = new SimpleJdbcInsert(dataSource).withTableName("article").usingGeneratedKeyColumns("id")
-                .usingColumns("title","nick_name","group_id","depth_level","group_seq","category_id", "ip_address","member_id");
+                .usingColumns("title", "nick_name", "group_id", "depth_level", "group_seq", "category_id", "ip_address", "member_id");
         this.insertActionArticleContent = new SimpleJdbcInsert(dataSource).withTableName("article_content");
         this.insertActionFile = new SimpleJdbcInsert(dataSource).withTableName("file");
         this.insertActionArticleCounting = new SimpleJdbcInsert(dataSource).withTableName("article_counting");
     }
 
-    public int arrangeGroupSeq(Long groupId, int groupSeq){
+    public int arrangeGroupSeq(Long groupId, int groupSeq) {
         String sql = "UPDATE article SET group_seq = group_seq + 1 WHERE group_id = :groupId AND group_seq >= :groupSeq";
         Map<String, Number> map = new HashMap<>();
         map.put("groupId", groupId);
@@ -64,7 +64,7 @@ public class ArticleDao {
         return insertActionArticleContent.execute(params);
     }
 
-    public int insertArticleCount(ArticleCounting articleCounting){
+    public int insertArticleCount(ArticleCounting articleCounting) {
         SqlParameterSource params = new BeanPropertySqlParameterSource(articleCounting);
         return insertActionArticleCounting.execute(params);
     }
@@ -77,16 +77,16 @@ public class ArticleDao {
     public ArticleFile getFileInfo(Long articleId) {
         String sql = "SELECT article_id, stored_name, origin_name, content_type, size, path FROM file " +
                 "WHERE article_id = :articleId";
-        try{
+        try {
             RowMapper<ArticleFile> rowMapper = BeanPropertyRowMapper.newInstance(ArticleFile.class);
             Map<String, Long> params = Collections.singletonMap("articleId", articleId);
             return jdbc.queryForObject(sql, params, rowMapper);
-        }catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             return null;
         }
     }
 
-    public int increaseHitCount(Long id){
+    public int increaseHitCount(Long id) {
         String sql = "UPDATE article SET hit = hit + 1 WHERE id = :id";
         Map<String, Long> map = Collections.singletonMap("id", id);
         return jdbc.update(sql, map);
@@ -94,7 +94,7 @@ public class ArticleDao {
 
     public int deleteArticle(Long id) {
         String sql = "UPDATE article SET is_deleted=TRUE WHERE id = :id";
-        Map<String, Long> map = Collections.singletonMap("id",id);
+        Map<String, Long> map = Collections.singletonMap("id", id);
         return jdbc.update(sql, map);
     }
 
@@ -112,7 +112,7 @@ public class ArticleDao {
         return jdbc.update(sql, params);
     }
 
-    public int updateArticleCount(ArticleCounting articleCounting){
+    public int updateArticleCount(ArticleCounting articleCounting) {
         String sql = "UPDATE article_counting SET count = count + 1 WHERE category_id = :categoryId";
         SqlParameterSource params = new BeanPropertySqlParameterSource(articleCounting);
         return jdbc.update(sql, params);
@@ -120,13 +120,13 @@ public class ArticleDao {
 
     public Article getArticle(Long id) {
         String sql = "SELECT id,title,hit,nick_name,group_id,depth_level,group_seq,regdate,"
-                +"upddate,category_id,ip_address,member_id,is_deleted "
-                +"FROM article WHERE id=:id";
-        try{
+                + "upddate,category_id,ip_address,member_id,is_deleted "
+                + "FROM article WHERE id=:id";
+        try {
             RowMapper<Article> rowMapper = BeanPropertyRowMapper.newInstance(Article.class);
             Map<String, Long> params = Collections.singletonMap("id", id);
             return jdbc.queryForObject(sql, params, rowMapper);
-        }catch(DataAccessException e){
+        } catch (DataAccessException e) {
             return null;
         }
     }
@@ -145,18 +145,18 @@ public class ArticleDao {
 
     public List<Article> getArticleList(int categoryId, int page, int posts) {
         String sql = "SELECT id,title,hit,nick_name,group_id,depth_level,group_seq,regdate,"
-                +"upddate,category_id,ip_address,member_id,is_deleted FROM article WHERE category_id=:categoryId "
-                +"ORDER BY group_id DESC, group_seq ASC LIMIT :start , :end";
-        RowMapper<Article> rowMapper =  BeanPropertyRowMapper.newInstance(Article.class);
+                + "upddate,category_id,ip_address,member_id,is_deleted FROM article WHERE category_id=:categoryId "
+                + "ORDER BY group_id DESC, group_seq ASC LIMIT :start , :end";
+        RowMapper<Article> rowMapper = BeanPropertyRowMapper.newInstance(Article.class);
 
-        int start = page * posts - (posts - 1) -1;
+        int start = page * posts - (posts - 1) - 1;
         int end = posts;
         Map<String, Integer> params = new HashMap();
         params.put("categoryId", categoryId);
         params.put("start", start);
         params.put("end", end);
         try {
-            return jdbc.query(sql,params,rowMapper);
+            return jdbc.query(sql, params, rowMapper);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,13 +164,13 @@ public class ArticleDao {
     }
 
     //article_counting의 count 검색
-    public ArticleCounting getCategoryCount(int categoryId){
+    public ArticleCounting getCategoryCount(int categoryId) {
         String sql = "SELECT count FROM article_counting WHERE category_id = :categoryId";
         try {
             RowMapper<ArticleCounting> rowMapper = BeanPropertyRowMapper.newInstance(ArticleCounting.class);
             Map<String, Integer> map = Collections.singletonMap("categoryId", categoryId);
             return jdbc.queryForObject(sql, map, rowMapper);
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
@@ -193,20 +193,20 @@ public class ArticleDao {
         //매핑이 안되어서 일단 if문으로 함
         if (orderType.equals("regdate")) {
             sql = "SELECT id,title,hit,nick_name,group_id,depth_level,group_seq,regdate,upddate,category_id,ip_address,member_id,is_deleted "
-                    +"FROM article ORDER BY regdate DESC, group_seq ASC LIMIT :start , :limit";
+                    + "FROM article ORDER BY regdate DESC, group_seq ASC LIMIT :start , :limit";
         } else if (orderType.equals("hit")) {
             sql = "SELECT id,title,hit,nick_name,group_id,depth_level,group_seq,regdate,upddate,category_id,ip_address,member_id,is_deleted "
-                    +"FROM article ORDER BY hit DESC, group_seq ASC LIMIT :start , :limit";
+                    + "FROM article ORDER BY hit DESC, group_seq ASC LIMIT :start , :limit";
         }
 
-        RowMapper<Article> rowMapper =  BeanPropertyRowMapper.newInstance(Article.class);
+        RowMapper<Article> rowMapper = BeanPropertyRowMapper.newInstance(Article.class);
 
         Map<String, Object> params = new HashMap();
         params.put("start", Integer.valueOf(start));
         params.put("limit", Integer.valueOf(limit));
-        
+
         try {
-            return jdbc.query(sql,params,rowMapper);
+            return jdbc.query(sql, params, rowMapper);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -215,19 +215,20 @@ public class ArticleDao {
 
     /**
      * 검색어를 적용한 게시판 리스트
+     *
      * @param categoryId 검색을 원하는 카테고리의 index id
-     * @param start 검색을 시작할 인덱스
-     * @param limit 검색 리스트의 한도 갯수
+     * @param start      검색을 시작할 인덱스
+     * @param limit      검색 리스트의 한도 갯수
      * @param searchType 검색타입으로 "제목","내용","이름","제목+내용"만을 받는다.
      * @param searchWord 사용자가 입력한 검색어
      * @return
      */
     public List<Article> getArticleList(int categoryId, int start, int limit, String searchType, String searchWord) {
         searchWord = "%" + searchWord + "%";
-        RowMapper<Article> rowMapper =  BeanPropertyRowMapper.newInstance(Article.class);
+        RowMapper<Article> rowMapper = BeanPropertyRowMapper.newInstance(Article.class);
         String sql = "SELECT art.id,art.title, art.hit,art.nick_name, art.group_id, art.depth_level, art.group_seq, "
-                +"art.regdate, art.upddate, art.category_id, art.ip_address, art.member_id, art.is_deleted, artcon.content "
-                +"FROM article art LEFT OUTER JOIN article_content artcon ON art.id = artcon.article_id  WHERE art.category_id=:categoryId AND ";
+                + "art.regdate, art.upddate, art.category_id, art.ip_address, art.member_id, art.is_deleted, artcon.content "
+                + "FROM article art LEFT OUTER JOIN article_content artcon ON art.id = artcon.article_id  WHERE art.category_id=:categoryId AND ";
 
         if (searchType.equals("제목")) {
             sql += "art.title LIKE :searchWord ";
@@ -241,7 +242,7 @@ public class ArticleDao {
             return null;
         }
 
-        sql+="ORDER BY art.group_id DESC, art.group_seq ASC LIMIT :start , :limit";
+        sql += "ORDER BY art.group_id DESC, art.group_seq ASC LIMIT :start , :limit";
 
         Map<String, Object> params = new HashMap();
         params.put("categoryId", Integer.valueOf(categoryId));
@@ -251,7 +252,7 @@ public class ArticleDao {
         params.put("searchWord", searchWord);
 
         try {
-            return jdbc.query(sql,params,rowMapper);
+            return jdbc.query(sql, params, rowMapper);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -262,15 +263,11 @@ public class ArticleDao {
     public List<Category> getCategoryList() {
         String sql = "SELECT id,name FROM category";
 
-        try{
-            RowMapper<Category> rowMapper =  BeanPropertyRowMapper.newInstance(Category.class);
-            return jdbc.query(sql,rowMapper);
-        }catch(DataAccessException e){
+        try {
+            RowMapper<Category> rowMapper = BeanPropertyRowMapper.newInstance(Category.class);
+            return jdbc.query(sql, rowMapper);
+        } catch (DataAccessException e) {
             return null;
         }
     }
-
-
-
-
 }
